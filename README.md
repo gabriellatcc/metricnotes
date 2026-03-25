@@ -1,4 +1,4 @@
-# 📊 MetricNotes
+# MetricNotes
 
 > **Gestão Produtiva e Business Intelligence para Autônomos**
 > 
@@ -26,7 +26,7 @@ O objetivo principal é mitigar a exaustão do trabalho remoto e promover a saú
 - **Gráficos de Calor (Heatmaps):** Visualização intuitiva dos níveis de produtividade e prioridade, facilitando a tomada de decisão.
 - **Análise de Desempenho:** Identificação automática dos horários e dias de maior rendimento do usuário.
 
-## 🛠️ Tecnologias e Arquitetura
+## Tecnologias e Arquitetura
 
 O projeto utiliza uma arquitetura Fullstack modular, separando a regra de negócios da interface de visualização.
 
