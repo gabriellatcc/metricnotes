@@ -44,7 +44,6 @@ class UserController extends Controller
     public function store(StoreUserRequest $request)
     {
         try {
-            Gate::authorize('store', User::class);
 
             $user = $this->userService->store($request->validated());
 
@@ -74,7 +73,7 @@ class UserController extends Controller
         try {
             Gate::authorize('delete', User::class);
 
-            $user = $this->userService->delete($request->validate());
+            $user = $this->userService->delete($request->validated());
 
             return $this->respondSuccess($user,'Usuário excluído com sucesso!');
         } catch (\Exception $e) {

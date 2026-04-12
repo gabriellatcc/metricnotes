@@ -20,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->api(prepend: [
+            \App\Http\Middleware\NormalizeApiRequestHeaders::class,
+        ]);
+
         $middleware->alias([
             'jwt' => \App\Http\Middleware\JwtMiddleware::class,
         ]);
@@ -52,6 +56,16 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (\Throwable $exception) {
+            if (config('app.debug')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $exception->getMessage(),
+                    'data' => [
+                        'file' => $exception->getFile(),
+                        'line' => $exception->getLine(),
+                    ],
+                ], 500);
+            }
             return response()->json([
                 'success' => false,
                 'data' => null,
