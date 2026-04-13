@@ -6,6 +6,7 @@ use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Exception;
 
 class UserService
 {
@@ -28,7 +29,12 @@ class UserService
 
     public function show(array $data): UserResource
     {
-        $user = User::findOrFail($data['id']);
+        $user = User::find($data['id']);
+
+        if (! $user) {
+            throw new Exception('Usuário não encontrado', 404);
+        }
+
         return new UserResource($user);
     }
 
@@ -45,8 +51,8 @@ class UserService
         return [
             'user' => new UserResource($user),
             'authorization' => [
-                'token' => $token,
-                'type' => 'bearer',
+                'access_token' => $token,
+                'token_type' => 'Bearer',
                 'expires_in' => auth('api')->factory()->getTTL() * 60,
             ]
         ];
@@ -54,9 +60,10 @@ class UserService
 
     public function update(array $data): UserResource
     {
-        $user = User::findOrFail($data['id']);
+        $user = User::find($data['id']);
+
         if (! $user) {
-            throw new \Exception('Usuário não encontrado', 404);
+            throw new Exception('Usuário não encontrado', 404);
         }
 
         if (isset($data['password'])) {
@@ -68,10 +75,14 @@ class UserService
         return new UserResource($user->refresh());
     }
 
-    public function delete(array $data): void
+    public function delete(array $data): bool
     {
-        $user = User::findOrFail($data['id']);
+        $user = User::find($data['id']);
 
-        $user->delete();
+        if (! $user) {
+            throw new Exception('Usuário não encontrado', 404);
+        }
+
+        return $user->delete();
     }
 }
