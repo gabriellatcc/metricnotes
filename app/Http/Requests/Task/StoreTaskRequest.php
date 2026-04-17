@@ -22,7 +22,8 @@ class StoreTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'task_type_id' => ['nullable', 'integer', 'exists:task_types,id'],
+            'task_type_ids' => ['sometimes', 'array'],
+            'task_type_ids.*' => ['uuid', 'distinct', 'exists:task_types,id'],
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'status' => ['nullable', 'string', 'in:pending,in_progress'],
@@ -35,7 +36,7 @@ class StoreTaskRequest extends FormRequest
     public function attributes()
     {
         return[
-            'task_type_id'=>'ID do tipo de tarefa',
+            'task_type_ids'=>'tipos de tarefa',
             'name'=>'nome da tarefa',
             'description'=>'descrição da tarefa',
             'status'=>'status da tarefa',

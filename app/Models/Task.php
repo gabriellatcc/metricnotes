@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Task extends Model
@@ -13,7 +14,6 @@ class Task extends Model
 
     protected $fillable = [
         'user_id',
-        'task_type_id',
         'name',
         'description',
         'status',
@@ -45,8 +45,8 @@ class Task extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function taskType(): BelongsTo
+    public function taskTypes(): BelongsToMany
     {
-        return $this->belongsTo(TaskType::class);
+        return $this->belongsToMany(TaskType::class)->withTimestamps();
     }
 }

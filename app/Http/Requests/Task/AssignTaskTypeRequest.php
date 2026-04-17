@@ -4,7 +4,7 @@ namespace App\Http\Requests\Task;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateTaskRequest extends FormRequest
+class AssignTaskTypeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,9 +23,8 @@ class UpdateTaskRequest extends FormRequest
     {
         return [
             'id' => ['required', 'uuid', 'exists:tasks,id'],
-            'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'description' => ['sometimes', 'nullable', 'string'],
-            'priority' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:5'],
+            'task_type_ids' => ['required', 'array'],
+            'task_type_ids.*' => ['uuid', 'distinct', 'exists:task_types,id'],
         ];
     }
 
@@ -33,6 +32,7 @@ class UpdateTaskRequest extends FormRequest
     {
         return [
             'id' => 'ID da tarefa',
+            'task_type_ids' => 'tipos de tarefa',
         ];
     }
 

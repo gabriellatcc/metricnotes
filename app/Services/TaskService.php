@@ -5,8 +5,10 @@ namespace App\Services;
 use App\Http\Resources\Task\TaskCollection;
 use App\Http\Resources\Task\TaskResource;
 use App\Models\Task;
-use Illuminate\Support\Facades\Gate;
+use App\Models\TaskType;
 use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class TaskService
 {
@@ -14,24 +16,24 @@ class TaskService
     {
         $user = auth('api')->user();
 
-        if (!$user) {
+        if (! $user) {
             throw new Exception('Usuário não autenticado.', 401);
         }
 
         $tasks = Task::query()
-            ->with(['taskType'])
+            ->with(['taskTypes'])
             ->where('user_id', $user->id)
             ->when($data['search'] ?? null, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('description', 'like', "%{$search}%");
+                        ->orWhere('description', 'like', "%{$search}%");
                 });
             })
             ->when($data['status'] ?? null, function ($query, $status) {
                 $query->where('status', $status);
             })
             ->when($data['task_type_id'] ?? null, function ($query, $typeId) {
-                $query->where('task_type_id', $typeId);
+                $query->whereHas('taskTypes', fn ($q) => $q->where('task_types.id', $typeId));
             })
             ->latest()
             ->paginate($data['per_page'] ?? 15, ['*'], 'page', $data['page'] ?? 1);
@@ -41,13 +43,12 @@ class TaskService
 
     public function show(array $data): TaskResource
     {
-        $task = Task::with(['taskType'])->find($data['id']);
+        $task = Task::with(['taskTypes'])->find($data['id']);
 
-        if (!$task) {
+        if (! $task) {
             throw new Exception('Tarefa não encontrada', 404);
         }
 
-        // Se der erro aqui, verifique a TaskPolicy.php
         Gate::authorize('show', $task);
 
         return new TaskResource($task);
@@ -55,6 +56,9 @@ class TaskService
 
     public function store(array $data): TaskResource
     {
+        $taskTypeIds = $data['task_type_ids'] ?? [];
+        unset($data['task_type_ids']);
+
         $data['user_id'] = auth('api')->id();
 
         if (isset($data['due_date'])) {
@@ -64,14 +68,17 @@ class TaskService
 
         $task = Task::create($data);
 
-        return new TaskResource($task->load('taskType'));
+        $syncIds = $this->taskTypeIdsOwnedByTaskUser($task, $taskTypeIds);
+        $task->taskTypes()->sync($syncIds);
+
+        return new TaskResource($task->load('taskTypes'));
     }
 
     public function update(array $data): TaskResource
     {
         $task = Task::find($data['id']);
 
-        if (!$task) {
+        if (! $task) {
             throw new Exception('Tarefa não encontrada', 404);
         }
 
@@ -79,19 +86,59 @@ class TaskService
 
         $task->update($data);
 
-        return new TaskResource($task->load('taskType'));
+        return new TaskResource($task->load('taskTypes'));
+    }
+
+    public function assignType(array $data): TaskResource
+    {
+        $task = Task::findOrFail($data['id']);
+
+        Gate::authorize('update', $task);
+
+        $taskTypeIds = $data['task_type_ids'] ?? [];
+
+        DB::transaction(function () use ($task, $taskTypeIds) {
+            $syncIds = $this->taskTypeIdsOwnedByTaskUser($task, $taskTypeIds);
+            $task->taskTypes()->sync($syncIds);
+        });
+
+        return new TaskResource($task->fresh()->load('taskTypes'));
     }
 
     public function delete(array $data): bool
     {
         $task = Task::find($data['id']);
 
-        if (!$task) {
+        if (! $task) {
             throw new Exception('Tarefa não encontrada', 404);
         }
 
         Gate::authorize('delete', $task);
 
         return $task->delete();
+    }
+
+    /**
+     * @param  array<int, string>  $ids
+     * @return array<int, string>
+     */
+    protected function taskTypeIdsOwnedByTaskUser(Task $task, array $ids): array
+    {
+        $ids = array_values(array_unique(array_filter($ids)));
+
+        if ($ids === []) {
+            return [];
+        }
+
+        $validCount = TaskType::query()
+            ->whereIn('id', $ids)
+            ->where('user_id', $task->user_id)
+            ->count();
+
+        if ($validCount !== count($ids)) {
+            throw new Exception('Um ou mais tipos de tarefa são inválidos ou não pertencem ao dono da tarefa.', 422);
+        }
+
+        return $ids;
     }
 }
