@@ -44,4 +44,15 @@ class StoreTaskRequest extends FormRequest
             'due_date' => 'Data de vencimento',
         ];
     }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'due_date.date' => 'A :attribute deve ser uma data válida.',
+            'due_date.after_or_equal' => 'A :attribute deve ser hoje ou uma data futura.',
+        ];
+    }
 }

@@ -141,4 +141,52 @@ class TaskService
 
         return $ids;
     }
+
+    public function postpone(array $data): TaskResource
+    {
+        $task = Task::find($data['id']);
+
+        if (! $task) {
+            throw new Exception('Tarefa não encontrada', 404);
+        }
+
+        Gate::authorize('update', $task);
+
+        if ($task->postponed_count >= 3) {
+            throw new Exception('Esta tarefa já atingiu o limite máximo de 3 adiamentos.', 400);
+        }
+
+        $task->postponed_count += 1;
+
+        $dateField = 'postponed_date_' . $task->postponed_count;
+        $task->{$dateField} = now();
+
+        $task->current_due_date = $data['current_due_date'];
+        $task->status = 'postponed';
+
+        $task->save();
+        $task->load('taskTypes');
+
+        return new TaskResource($task);
+    }
+
+    public function complete(array $data): TaskResource
+    {
+        $task = Task::find($data['id']);
+
+        if (! $task) {
+            throw new Exception('Tarefa não encontrada', 404);
+        }
+
+        Gate::authorize('update', $task);
+
+        $task->update([
+            'status' => 'completed',
+            'completed_at' => now(),
+        ]);
+
+        $task->load('taskTypes');
+
+        return new TaskResource($task);
+    }
 }

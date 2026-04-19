@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Task\AssignTaskTypeRequest;
+use App\Http\Requests\Task\CompleteTaskRequest;
 use App\Http\Requests\Task\DeleteTaskRequest;
 use App\Http\Requests\Task\IndexTaskRequest;
+use App\Http\Requests\Task\PostponeTaskRequest;
 use App\Http\Requests\Task\ShowTaskRequest;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
@@ -74,6 +76,26 @@ class TaskController extends Controller
             return $this->respondSuccess($task, 'Tarefa excluída com sucesso!');
         } catch (\Exception $e) {
             return $this->respondError('Erro ao excluir tarefa: ' . $e->getMessage(), null, $e->getCode() ?: 500);
+        }
+    }
+
+    public function postpone(PostponeTaskRequest $request)
+    {
+        try {
+            $task = $this->taskService->postpone($request->validated());
+            return $this->respondSuccess($task, 'Tarefa adiada com sucesso!');
+        } catch (\Exception $e) {
+            return $this->respondError('Erro ao adiar tarefa: ' . $e->getMessage(), null, $e->getCode() ?: 500);
+        }
+    }
+
+    public function complete(CompleteTaskRequest $request)
+    {
+        try {
+            $task = $this->taskService->complete($request->validated());
+            return $this->respondSuccess($task, 'Tarefa concluída com sucesso!');
+        } catch (\Exception $e) {
+            return $this->respondError('Erro ao concluir tarefa: ' . $e->getMessage(), null, $e->getCode() ?: 500);
         }
     }
 }
