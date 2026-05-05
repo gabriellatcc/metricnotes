@@ -12,27 +12,32 @@ use Illuminate\Support\Carbon;
  * Seeds tasks for BI-style checks on completion and postponements in the **previous calendar week**
  * (Mon 00:00 – Sun 23:59:59 before this week). All dates are derived from now(), so re-running the
  * seeder keeps data aligned with “last week” instead of drifting to fixed past dates.
+ *
+ * Creates **6** tasks for the admin user ({@see AdminUserSeeder}).
  */
 class TesteUserAnalyticsTaskSeeder extends Seeder
 {
-    private const USER_EMAIL = 'teste@example.com';
+    private const ADMIN_EMAIL = 'admin@metricnotes.com';
+
+    private const TASK_COUNT = 6;
 
     public function run(): void
     {
         [$weekStart, $weekEnd] = $this->previousCalendarWeekBounds();
 
-        $user = User::query()->where('email', self::USER_EMAIL)->first();
-        if ($user === null) {
-            $user = User::factory()->create([
-                'name' => 'Usuário teste analytics',
-                'email' => self::USER_EMAIL,
-            ]);
-        }
+        $user = User::query()->updateOrCreate(
+            ['email' => self::ADMIN_EMAIL],
+            [
+                'name' => 'Admin',
+                'password' => 'admin123456',
+                'is_admin' => true,
+            ]
+        );
 
         $this->ensureTipsForUser($user->id);
         $userId = $user->id;
 
-        $total = random_int(50, 80);
+        $total = self::TASK_COUNT;
 
         $nCompleted = (int) floor($total * 0.38);
         $nPostponedStatus = (int) floor($total * 0.28);

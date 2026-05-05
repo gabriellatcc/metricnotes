@@ -10,6 +10,8 @@ Route::middleware('jwt')->group(function () {
     Route::patch('/{id}/postpone', [TaskController::class, 'postpone']);
     Route::patch('/{id}/complete', [TaskController::class, 'complete']);
     Route::post('/{id}/view', [TaskController::class, 'recordView']);
+    Route::post('/{id}/view/session/start', [TaskController::class, 'startViewSession']);
+    Route::post('/{id}/view/session/end', [TaskController::class, 'endViewSession']);
     Route::get('/{id}', [TaskController::class, 'show']);
     Route::put('/{id}', [TaskController::class, 'update']);
     Route::delete('/{id}', [TaskController::class, 'delete']);

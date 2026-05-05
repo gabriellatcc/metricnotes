@@ -38,6 +38,7 @@ class TaskFactory extends Factory
             'postponed_date_3' => null,
             'is_being_viewed' => false,
             'last_viewed_at' => null,
+            'total_view_time_seconds' => 0,
             'completed_at' => null,
         ];
     }
