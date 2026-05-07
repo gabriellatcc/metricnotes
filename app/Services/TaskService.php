@@ -92,6 +92,16 @@ class TaskService
 
         Gate::authorize('update', $task);
 
+        unset($data['id']);
+
+        if (array_key_exists('status', $data)) {
+            if ($data['status'] === 'completed') {
+                $data['completed_at'] = now();
+            } else {
+                $data['completed_at'] = null;
+            }
+        }
+
         $task->update($data);
 
         return new TaskResource($task->load('tips'));
