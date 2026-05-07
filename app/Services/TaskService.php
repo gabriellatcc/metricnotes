@@ -207,6 +207,7 @@ class TaskService
         }
 
         Gate::authorize('update', $task);
+        $this->assertTaskAllowsNewViewTelemetry($task);
 
         $task->update([
             'last_viewed_at' => now(),
@@ -232,6 +233,8 @@ class TaskService
         }
 
         Gate::authorize('update', $task);
+
+        $this->assertTaskAllowsNewViewTelemetry($task);
 
         $userId = (string) auth('api')->id();
 
@@ -353,7 +356,10 @@ class TaskService
             'duration_seconds' => $seconds,
         ])->save();
 
-        Task::query()->whereKey($session->task_id)->increment('total_view_time_seconds', $seconds);
+        $taskAfter = Task::query()->find($session->task_id);
+        if ($taskAfter instanceof Task && ! $this->taskIsCompleted($taskAfter)) {
+            Task::query()->whereKey($session->task_id)->increment('total_view_time_seconds', $seconds);
+        }
 
         $hasOpen = TaskViewSession::query()
             ->where('task_id', $session->task_id)
@@ -362,6 +368,23 @@ class TaskService
 
         if (! $hasOpen) {
             Task::query()->whereKey($session->task_id)->update(['is_being_viewed' => false]);
+        }
+    }
+
+    /** Tarefas concluídas não iniciam novo registro nem estatísticas de tempo de foco na tela. */
+    private function taskIsCompleted(Task $task): bool
+    {
+        return $task->completed_at !== null || $task->status === 'completed';
+    }
+
+    /** Bloqueia recordView e startSession; endSession permanece permitido para fechar sessões pendentes. */
+    private function assertTaskAllowsNewViewTelemetry(Task $task): void
+    {
+        if ($this->taskIsCompleted($task)) {
+            throw new Exception(
+                'Não é possível registrar tempo de visualização para tarefa concluída.',
+                422
+            );
         }
     }
 }

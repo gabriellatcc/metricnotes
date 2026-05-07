@@ -56,7 +56,7 @@ class TaskDueNotificationTest extends TestCase
             ->assertJsonPath('data.unread_count', 1)
             ->assertJsonPath('data.unread.0.task_id', $task->id)
             ->assertJsonPath('data.unread.0.title', 'Comprar insumos QA')
-            ->assertJsonPath('data.unread.0.due_summary', 'Vence amanhã às 16:42');
+            ->assertJsonPath('data.unread.0.due_summary', 'Vence amanhã');
 
         Carbon::setTestNow();
     }
@@ -88,7 +88,7 @@ class TaskDueNotificationTest extends TestCase
             ->assertJsonPath('data.unread.0.task_id', $task->id)
             ->assertJsonPath('data.unread.0.title', 'Revisão do relatório')
             ->assertJsonPath('data.unread.0.is_read', false)
-            ->assertJsonPath('data.unread.0.due_summary', 'Vence amanhã às 10:15')
+            ->assertJsonPath('data.unread.0.due_summary', 'Vence amanhã')
             ->assertJsonPath('data.read', []);
 
         $this->withHeader('Authorization', 'Bearer '.$token)
@@ -103,7 +103,7 @@ class TaskDueNotificationTest extends TestCase
             ->assertJsonPath('data.unread_count', 0)
             ->assertJsonPath('data.unread', [])
             ->assertJsonPath('data.read.0.is_read', true)
-            ->assertJsonPath('data.read.0.due_summary', 'Vence amanhã às 10:15');
+            ->assertJsonPath('data.read.0.due_summary', 'Vence amanhã');
 
         Carbon::setTestNow();
     }

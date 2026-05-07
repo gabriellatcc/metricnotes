@@ -11,6 +11,7 @@ class TaskPolicy
     {
         return $user->is_admin === true;
     }
+
     /**
      * O método before é executado antes de qualquer outra regra.
      * Se retornar true, o acesso é liberado imediatamente (ideal para Admins).
@@ -53,7 +54,7 @@ class TaskPolicy
      */
     public function restore(User $user, Task $task): bool
     {
-        return false;
+        return $user->id === $task->user_id;
     }
 
     /**

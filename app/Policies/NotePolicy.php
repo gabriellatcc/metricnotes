@@ -38,7 +38,7 @@ class NotePolicy
 
     public function restore(User $user, Note $note): bool
     {
-        return false;
+        return $user->id === $note->user_id;
     }
 
     public function forceDelete(User $user, Note $note): bool

@@ -9,17 +9,22 @@ use App\Http\Requests\Task\EndTaskViewSessionRequest;
 use App\Http\Requests\Task\IndexTaskRequest;
 use App\Http\Requests\Task\PostponeTaskRequest;
 use App\Http\Requests\Task\RecordTaskViewRequest;
+use App\Http\Requests\Task\RestoreTaskRequest;
 use App\Http\Requests\Task\ShowTaskRequest;
 use App\Http\Requests\Task\StartTaskViewSessionRequest;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
+use App\Services\SoftDeleteUndoService;
 use App\Services\TaskService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class TaskController extends Controller
 {
-    public function __construct(private readonly TaskService $taskService) {}
+    public function __construct(
+        private readonly TaskService $taskService,
+        private readonly SoftDeleteUndoService $softDeleteUndoService,
+    ) {}
 
     public function index(IndexTaskRequest $request)
     {
@@ -86,6 +91,19 @@ class TaskController extends Controller
             return $this->respondSuccess($task, 'Tarefa excluída com sucesso!');
         } catch (\Exception $e) {
             return $this->respondError('Erro ao excluir tarefa: '.$e->getMessage(), null, $e->getCode() ?: 500);
+        }
+    }
+
+    public function restore(RestoreTaskRequest $request)
+    {
+        try {
+            $task = $this->softDeleteUndoService->restoreTask($request->validated()['id']);
+
+            return $this->respondSuccess($task, 'Tarefa recuperada com sucesso!');
+        } catch (AuthorizationException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            return $this->respondError('Erro ao recuperar tarefa: '.$e->getMessage(), null, $e->getCode() ?: 400);
         }
     }
 

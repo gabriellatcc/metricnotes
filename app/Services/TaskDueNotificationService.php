@@ -73,7 +73,7 @@ class TaskDueNotificationService
             }
 
             $dueLocal = $task->current_due_date->copy()->timezone($tz);
-            $dueSummary = $this->dueSummaryPortuguese($calendarDaysUntilDue, $dueLocal);
+            $dueSummary = $this->dueSummaryPortuguese($calendarDaysUntilDue);
             $isRead = $state !== null && $state->read_at !== null;
 
             $items[] = [
@@ -113,16 +113,15 @@ class TaskDueNotificationService
             ->where('current_due_date', '<=', $end);
     }
 
-    protected function dueSummaryPortuguese(int $calendarDaysUntilDue, Carbon $dueLocal): string
+    /** Resumo apenas por dia (datas de tarefa não incluem hora definida pelo utilizador). */
+    protected function dueSummaryPortuguese(int $calendarDaysUntilDue): string
     {
-        $time = $dueLocal->format('H:i');
-
         return match ($calendarDaysUntilDue) {
-            0 => 'Vence hoje às '.$time,
-            1 => 'Vence amanhã às '.$time,
-            2 => 'Vence em dois dias às '.$time,
-            3 => 'Vence em três dias às '.$time,
-            default => 'Vence em '.$calendarDaysUntilDue.' dias às '.$time,
+            0 => 'Vence hoje',
+            1 => 'Vence amanhã',
+            2 => 'Vence em dois dias',
+            3 => 'Vence em três dias',
+            default => 'Vence em '.$calendarDaysUntilDue.' dias',
         };
     }
 

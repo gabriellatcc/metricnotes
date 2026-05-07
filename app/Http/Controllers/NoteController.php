@@ -5,15 +5,21 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Note\AssignNoteTipRequest;
 use App\Http\Requests\Note\DeleteNoteRequest;
 use App\Http\Requests\Note\IndexNoteRequest;
+use App\Http\Requests\Note\RestoreNoteRequest;
 use App\Http\Requests\Note\ShowNoteRequest;
 use App\Http\Requests\Note\StoreNoteRequest;
 use App\Http\Requests\Note\UpdateNoteRequest;
 use App\Services\NoteService;
+use App\Services\SoftDeleteUndoService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class NoteController extends Controller
 {
-    public function __construct(private readonly NoteService $noteService) {}
+    public function __construct(
+        private readonly NoteService $noteService,
+        private readonly SoftDeleteUndoService $softDeleteUndoService,
+    ) {}
 
     public function index(IndexNoteRequest $request)
     {
@@ -80,6 +86,19 @@ class NoteController extends Controller
             return $this->respondSuccess(null, 'Nota excluída com sucesso!');
         } catch (\Exception $e) {
             return $this->respondError('Erro ao excluir nota: '.$e->getMessage(), null, $e->getCode() ?: 500);
+        }
+    }
+
+    public function restore(RestoreNoteRequest $request)
+    {
+        try {
+            $note = $this->softDeleteUndoService->restoreNote($request->validated()['id']);
+
+            return $this->respondSuccess($note, 'Nota recuperada com sucesso!');
+        } catch (AuthorizationException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            return $this->respondError('Erro ao recuperar nota: '.$e->getMessage(), null, $e->getCode() ?: 400);
         }
     }
 }

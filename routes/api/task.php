@@ -14,5 +14,6 @@ Route::middleware('jwt')->group(function () {
     Route::post('/{id}/view/session/end', [TaskController::class, 'endViewSession']);
     Route::get('/{id}', [TaskController::class, 'show']);
     Route::put('/{id}', [TaskController::class, 'update']);
+    Route::patch('/{id}/restore', [TaskController::class, 'restore']);
     Route::delete('/{id}', [TaskController::class, 'delete']);
 });

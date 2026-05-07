@@ -138,4 +138,49 @@ class TaskViewSessionTest extends TestCase
         $this->assertSame(1, TaskViewSession::query()->whereNotNull('ended_at')->count());
         $this->assertSame(1, TaskViewSession::query()->whereNull('ended_at')->count());
     }
+
+    public function test_start_rejected_for_completed_task(): void
+    {
+        $user = User::factory()->create();
+        $task = Task::factory()->for($user)->completed()->create();
+        $token = JWTAuth::fromUser($user);
+
+        $this->withHeader('Authorization', 'Bearer '.$token)
+            ->postJson('/api/task/'.$task->id.'/view/session/start')
+            ->assertStatus(422)
+            ->assertJsonPath('success', false);
+    }
+
+    public function test_end_after_task_marked_completed_does_not_add_to_total_seconds(): void
+    {
+        $user = User::factory()->create();
+        $task = Task::factory()->for($user)->create(['total_view_time_seconds' => 0]);
+        $token = JWTAuth::fromUser($user);
+
+        $start = $this->withHeader('Authorization', 'Bearer '.$token)
+            ->postJson('/api/task/'.$task->id.'/view/session/start');
+
+        $start->assertOk();
+        $sessionId = $start->json('data.session_id');
+
+        $task->refresh();
+        $task->forceFill([
+            'status' => 'completed',
+            'completed_at' => now(),
+        ])->save();
+
+        $session = TaskViewSession::query()->findOrFail($sessionId);
+        $session->forceFill([
+            'started_at' => now()->subSeconds(100),
+        ])->save();
+
+        $this->withHeader('Authorization', 'Bearer '.$token)
+            ->postJson('/api/task/'.$task->id.'/view/session/end', [
+                'session_id' => $sessionId,
+            ])
+            ->assertOk();
+
+        $task->refresh();
+        $this->assertSame(0, $task->total_view_time_seconds);
+    }
 }

@@ -49,4 +49,17 @@ class TaskRecordViewTest extends TestCase
 
         $response->assertForbidden();
     }
+
+    public function test_record_view_rejected_for_completed_task(): void
+    {
+        $user = User::factory()->create();
+        $task = Task::factory()->for($user)->completed()->create();
+
+        $token = JWTAuth::fromUser($user);
+
+        $this->withHeader('Authorization', 'Bearer '.$token)
+            ->postJson('/api/task/'.$task->id.'/view')
+            ->assertStatus(422)
+            ->assertJsonPath('success', false);
+    }
 }

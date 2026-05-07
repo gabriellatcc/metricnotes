@@ -9,5 +9,6 @@ Route::middleware('jwt')->group(function () {
     Route::patch('/{id}/type', [NoteController::class, 'assignType']);
     Route::get('/{id}', [NoteController::class, 'show']);
     Route::put('/{id}', [NoteController::class, 'update']);
+    Route::patch('/{id}/restore', [NoteController::class, 'restore']);
     Route::delete('/{id}', [NoteController::class, 'delete']);
 });
