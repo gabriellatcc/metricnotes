@@ -23,7 +23,8 @@ class IndexTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+            // Calendário de tarefas pede mais itens num único pedido (ver metricnotes-web tasks-calendar-page).
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:250'],
             'page' => ['sometimes', 'integer', 'min:1'],
             'search' => ['sometimes', 'nullable', 'string', 'max:255'],
             'status' => ['sometimes', 'nullable', 'string'],
