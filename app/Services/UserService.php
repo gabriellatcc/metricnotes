@@ -6,7 +6,11 @@ use App\Http\Resources\User\UserCollection;
 use App\Http\Resources\User\UserResource;
 use App\Models\User;
 use Exception;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserService
@@ -84,6 +88,51 @@ class UserService
         Gate::authorize('update', $user);
 
         $user->update($data);
+
+        return new UserResource($user->refresh());
+    }
+
+    public function uploadAvatar(array $data): UserResource
+    {
+        $user = User::find($data['id']);
+
+        if (! $user) {
+            throw new Exception('Usuário não encontrado', 404);
+        }
+
+        Gate::authorize('update', $user);
+
+        /** @var UploadedFile $file */
+        $file = $data['avatar'];
+
+        if ($user->avatar_path) {
+            Storage::disk('public')->delete($user->avatar_path);
+        }
+
+        $extension = $file->getClientOriginalExtension() ?: $file->guessExtension() ?: 'jpg';
+        $basename = Str::uuid()->toString().'.'.strtolower($extension);
+        $path = $file->storeAs('avatars/'.$user->id, $basename, 'public');
+
+        $user->update(['avatar_path' => $path]);
+
+        return new UserResource($user->refresh());
+    }
+
+    public function changePassword(array $data): UserResource
+    {
+        $user = User::find($data['id']);
+
+        if (! $user) {
+            throw new Exception('Usuário não encontrado', 404);
+        }
+
+        Gate::authorize('update', $user);
+
+        if (! Hash::check($data['current_password'], $user->password)) {
+            throw new Exception('A senha atual está incorreta.', 422);
+        }
+
+        $user->update(['password' => $data['password']]);
 
         return new UserResource($user->refresh());
     }

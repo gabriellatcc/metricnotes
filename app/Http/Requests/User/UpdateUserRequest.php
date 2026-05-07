@@ -26,7 +26,6 @@ class UpdateUserRequest extends FormRequest
                 'max:255',
                 Rule::unique('users', 'email')->ignore($userId),
             ],
-            'password' => ['sometimes', 'string', 'min:6'],
         ];
     }
 
@@ -36,7 +35,6 @@ class UpdateUserRequest extends FormRequest
             'id' => 'ID do Usuário',
             'name' => 'Nome',
             'email' => 'Email',
-            'password' => 'Senha',
         ];
     }
 
