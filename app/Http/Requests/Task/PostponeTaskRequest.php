@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Task;
 
+use App\Http\Requests\Task\Concerns\NormalizesTaskDueDatetime;
 use App\Models\Task;
 use Carbon\Carbon;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -10,6 +11,8 @@ use Illuminate\Validation\Validator;
 
 class PostponeTaskRequest extends FormRequest
 {
+    use NormalizesTaskDueDatetime;
+
     public function authorize(): bool
     {
         return true;
@@ -23,7 +26,23 @@ class PostponeTaskRequest extends FormRequest
         return [
             'id' => ['required', 'uuid', 'exists:tasks,id'],
             'current_due_date' => ['required', 'date'],
+            'current_due_time' => ['sometimes', 'nullable', 'regex:/^\d{1,2}:\d{2}(?::\d{2})?$/'],
         ];
+    }
+
+    /**
+     * @return ($key is null ? array<string, mixed> : mixed)
+     */
+    public function validated($key = null, $default = null): mixed
+    {
+        if (func_num_args() === 0) {
+            $data = parent::validated();
+            unset($data['current_due_time']);
+
+            return $data;
+        }
+
+        return parent::validated($key, $default);
     }
 
     public function attributes(): array
@@ -31,6 +50,17 @@ class PostponeTaskRequest extends FormRequest
         return [
             'id' => 'ID da tarefa',
             'current_due_date' => 'novo prazo',
+            'current_due_time' => 'hora do novo prazo',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'current_due_time.regex' => 'A hora deve estar no formato H:mm ou HH:mm:ss.',
         ];
     }
 
@@ -39,6 +69,8 @@ class PostponeTaskRequest extends FormRequest
         $this->merge([
             'id' => $this->route('id'),
         ]);
+
+        $this->normalizeTaskDueDatetimeField('current_due_date', 'current_due_time');
     }
 
     public function withValidator(Validator $validator): void
@@ -126,10 +158,10 @@ class PostponeTaskRequest extends FormRequest
             return;
         }
 
-        $anchor = Carbon::parse($plannedCompletion)->startOfDay();
+        $anchor = Carbon::parse($plannedCompletion);
         $maxInclusive = $anchor->copy()->addDays(4);
 
-        if ($newDue->copy()->startOfDay()->gt($maxInclusive)) {
+        if ($newDue->greaterThan($maxInclusive)) {
             $v->errors()->add(
                 'current_due_date',
                 'No 1.º adiamento, o novo prazo não pode ser mais de 4 dias após a conclusão prevista.'

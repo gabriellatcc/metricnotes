@@ -72,6 +72,7 @@ class TaskService
         if (isset($data['due_date'])) {
             $data['original_due_date'] = $data['due_date'];
             $data['current_due_date'] = $data['due_date'];
+            unset($data['due_date']);
         }
 
         $task = Task::create($data);
