@@ -29,6 +29,8 @@ class TaskResource extends JsonResource
             'postponed_date_1' => $this->postponed_date_1,
             'postponed_date_2' => $this->postponed_date_2,
             'postponed_date_3' => $this->postponed_date_3,
+            /** Indica se regras 3.1–3.4 se aplicam (false para prazo inicial “longo”, exceção 3.5). */
+            'postpone_strict_rules_apply' => $this->postponeStrictRulesApply(),
 
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 class Task extends Model
 {
@@ -56,5 +57,31 @@ class Task extends Model
     public function viewSessions(): HasMany
     {
         return $this->hasMany(TaskViewSession::class);
+    }
+
+    /**
+     * Exceção 3.5: planejamentos com mais de 7 dias entre criação e prazo inicial
+     * (caso típico "próximas tarefas") dispensam os limites estritos de adiamento.
+     */
+    public function qualifiesLongHorizonPostponeExemption(): bool
+    {
+        $due = $this->original_due_date ?? $this->current_due_date;
+        if ($due === null || $this->created_at === null) {
+            return false;
+        }
+
+        $created = Carbon::parse($this->created_at)->startOfDay();
+        $dueStart = Carbon::parse($due)->startOfDay();
+
+        if ($dueStart->lt($created)) {
+            return false;
+        }
+
+        return $created->diffInDays($dueStart) > 7;
+    }
+
+    public function postponeStrictRulesApply(): bool
+    {
+        return ! $this->qualifiesLongHorizonPostponeExemption();
     }
 }
