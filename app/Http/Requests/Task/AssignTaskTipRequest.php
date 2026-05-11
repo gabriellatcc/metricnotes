@@ -27,7 +27,7 @@ class AssignTaskTipRequest extends FormRequest
     {
         return [
             'id' => 'ID da tarefa',
-            'tip_ids' => 'dicas',
+            'tip_ids' => 'tipos',
         ];
     }
 

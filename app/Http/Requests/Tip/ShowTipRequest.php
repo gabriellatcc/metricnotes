@@ -24,7 +24,7 @@ class ShowTipRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'id' => 'ID da dica',
+            'id' => 'ID da tipo',
         ];
     }
 

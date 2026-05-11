@@ -70,11 +70,11 @@ class NoteController extends Controller
         try {
             $note = $this->noteService->assignType($request->validated());
 
-            return $this->respondSuccess($note, 'Dicas atribuídas com sucesso!');
+            return $this->respondSuccess($note, 'Tipos atribuídas com sucesso!');
         } catch (ModelNotFoundException $e) {
             return $this->respondError('Nota não encontrada.', null, 404);
         } catch (\Exception $e) {
-            return $this->respondError('Erro ao atribuir dicas: '.$e->getMessage(), null, $e->getCode() ?: 500);
+            return $this->respondError('Erro ao atribuir tipos: '.$e->getMessage(), null, $e->getCode() ?: 500);
         }
     }
 

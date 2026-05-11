@@ -40,7 +40,7 @@ class TipService
         $tip = Tip::with('user')->find($data['id']);
 
         if (! $tip) {
-            throw new Exception('Dica não encontrada', 404);
+            throw new Exception('Tipo não encontrada', 404);
         }
 
         Gate::authorize('show', $tip);
@@ -71,7 +71,7 @@ class TipService
         $tip = Tip::find($data['id']);
 
         if (! $tip) {
-            throw new Exception('Dica não encontrada', 404);
+            throw new Exception('Tipo não encontrada', 404);
         }
 
         Gate::authorize('update', $tip);
@@ -89,7 +89,7 @@ class TipService
         $tip = Tip::find($data['id']);
 
         if (! $tip) {
-            throw new Exception('Dica não encontrada', 404);
+            throw new Exception('Tipo não encontrada', 404);
         }
 
         Gate::authorize('delete', $tip);

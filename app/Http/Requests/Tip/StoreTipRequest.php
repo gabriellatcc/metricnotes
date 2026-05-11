@@ -25,8 +25,8 @@ class StoreTipRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'name' => 'nome da dica',
-            'color' => 'cor da dica',
+            'name' => 'nome da tipo',
+            'color' => 'cor da tipo',
         ];
     }
 }

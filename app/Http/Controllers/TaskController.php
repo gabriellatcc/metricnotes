@@ -75,11 +75,11 @@ class TaskController extends Controller
         try {
             $task = $this->taskService->assignType($request->validated());
 
-            return $this->respondSuccess($task, 'Dicas atribuídas à tarefa com sucesso!');
+            return $this->respondSuccess($task, 'Tipos atribuídas à tarefa com sucesso!');
         } catch (ModelNotFoundException $e) {
             return $this->respondError('Tarefa não encontrada.', null, 404);
         } catch (\Exception $e) {
-            return $this->respondError('Erro ao atribuir dicas: '.$e->getMessage(), null, $e->getCode() ?: 500);
+            return $this->respondError('Erro ao atribuir tipos: '.$e->getMessage(), null, $e->getCode() ?: 500);
         }
     }
 

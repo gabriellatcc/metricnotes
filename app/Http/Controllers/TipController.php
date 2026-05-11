@@ -18,9 +18,9 @@ class TipController extends Controller
         try {
             $tips = $this->tipService->index($request->validated());
 
-            return $this->respondSuccess($tips, 'Lista de dicas exibida com sucesso!');
+            return $this->respondSuccess($tips, 'Lista de tipos exibida com sucesso!');
         } catch (\Exception $e) {
-            return $this->respondError('Erro ao listar dicas: '.$e->getMessage(), null, $e->getCode() ?: 500);
+            return $this->respondError('Erro ao listar tipos: '.$e->getMessage(), null, $e->getCode() ?: 500);
         }
     }
 
@@ -29,9 +29,9 @@ class TipController extends Controller
         try {
             $tip = $this->tipService->show($request->validated());
 
-            return $this->respondSuccess($tip, 'Dica exibida com sucesso!');
+            return $this->respondSuccess($tip, 'Tipo exibida com sucesso!');
         } catch (\Exception $e) {
-            return $this->respondError('Erro ao exibir dica: '.$e->getMessage(), null, $e->getCode() ?: 500);
+            return $this->respondError('Erro ao exibir tipo: '.$e->getMessage(), null, $e->getCode() ?: 500);
         }
     }
 
@@ -40,9 +40,9 @@ class TipController extends Controller
         try {
             $tip = $this->tipService->store($request->validated());
 
-            return $this->respondSuccess($tip, 'Dica criada com sucesso!');
+            return $this->respondSuccess($tip, 'Tipo criada com sucesso!');
         } catch (\Exception $e) {
-            return $this->respondError('Erro ao criar dica: '.$e->getMessage(), null, $e->getCode() ?: 500);
+            return $this->respondError('Erro ao criar tipo: '.$e->getMessage(), null, $e->getCode() ?: 500);
         }
     }
 
@@ -51,9 +51,9 @@ class TipController extends Controller
         try {
             $tip = $this->tipService->update($request->validated());
 
-            return $this->respondSuccess($tip, 'Dica atualizada com sucesso!');
+            return $this->respondSuccess($tip, 'Tipo atualizada com sucesso!');
         } catch (\Exception $e) {
-            return $this->respondError('Erro ao atualizar dica: '.$e->getMessage(), null, $e->getCode() ?: 500);
+            return $this->respondError('Erro ao atualizar tipo: '.$e->getMessage(), null, $e->getCode() ?: 500);
         }
     }
 
@@ -62,9 +62,9 @@ class TipController extends Controller
         try {
             $this->tipService->delete($request->validated());
 
-            return $this->respondSuccess(null, 'Dica excluída com sucesso!');
+            return $this->respondSuccess(null, 'Tipo excluída com sucesso!');
         } catch (\Exception $e) {
-            return $this->respondError('Erro ao excluir dica: '.$e->getMessage(), null, $e->getCode() ?: 500);
+            return $this->respondError('Erro ao excluir tipo: '.$e->getMessage(), null, $e->getCode() ?: 500);
         }
     }
 }

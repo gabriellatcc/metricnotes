@@ -28,7 +28,7 @@ class StoreNoteRequest extends FormRequest
     public function attributes()
     {
         return [
-            'tip_ids' => 'dicas',
+            'tip_ids' => 'tipos',
             'title' => 'título',
             'body' => 'conteúdo',
         ];

@@ -29,6 +29,8 @@ class IndexTaskRequest extends FormRequest
             'search' => ['sometimes', 'nullable', 'string', 'max:255'],
             'status' => ['sometimes', 'nullable', 'string'],
             'tip_id' => ['sometimes', 'nullable', 'uuid', 'exists:tips,id'],
+            /** Quando true, lista só tarefas na lixeira (soft delete); omitir ou false = só não excluídas. */
+            'only_trashed' => ['sometimes', 'boolean'],
         ];
     }
 }

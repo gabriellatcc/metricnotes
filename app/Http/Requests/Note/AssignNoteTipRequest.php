@@ -27,7 +27,7 @@ class AssignNoteTipRequest extends FormRequest
     {
         return [
             'id' => 'ID da nota',
-            'tip_ids' => 'dicas',
+            'tip_ids' => 'tipos',
         ];
     }
 

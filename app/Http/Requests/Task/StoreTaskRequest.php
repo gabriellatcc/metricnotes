@@ -69,7 +69,7 @@ class StoreTaskRequest extends FormRequest
     public function attributes()
     {
         return [
-            'tip_ids' => 'dicas',
+            'tip_ids' => 'tipos',
             'name' => 'nome da tarefa',
             'description' => 'descrição da tarefa',
             'status' => 'status da tarefa',

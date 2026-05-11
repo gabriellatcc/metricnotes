@@ -28,9 +28,12 @@ class TaskService
             throw new Exception('Usuário não autenticado.', 401);
         }
 
+        $onlyTrashed = ! empty($data['only_trashed']);
+
         $tasks = Task::query()
             ->with(['tips'])
             ->where('user_id', $user->id)
+            ->when($onlyTrashed, fn ($q) => $q->onlyTrashed())
             ->when($data['search'] ?? null, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
@@ -43,7 +46,7 @@ class TaskService
             ->when($data['tip_id'] ?? null, function ($query, $tipId) {
                 $query->whereHas('tips', fn ($q) => $q->where('tips.id', $tipId));
             })
-            ->latest()
+            ->when($onlyTrashed, fn ($q) => $q->latest('deleted_at'), fn ($q) => $q->latest())
             ->paginate($data['per_page'] ?? 15, ['*'], 'page', $data['page'] ?? 1);
 
         return new TaskCollection($tasks);
@@ -155,7 +158,7 @@ class TaskService
             ->count();
 
         if ($validCount !== count($ids)) {
-            throw new Exception('Uma ou mais dicas são inválidas ou não pertencem ao dono da tarefa.', 422);
+            throw new Exception('Uma ou mais tipos são inválidas ou não pertencem ao dono da tarefa.', 422);
         }
 
         return $ids;

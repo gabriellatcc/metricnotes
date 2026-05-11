@@ -131,7 +131,7 @@ class NoteService
             ->count();
 
         if ($validCount !== count($ids)) {
-            throw new Exception('Uma ou mais dicas são inválidas ou não pertencem ao dono da nota.', 422);
+            throw new Exception('Uma ou mais tipos são inválidas ou não pertencem ao dono da nota.', 422);
         }
 
         return $ids;
