@@ -115,4 +115,16 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Welcome e-mail on registration
+    |--------------------------------------------------------------------------
+    |
+    | Quando true, envia um e-mail informativo de confirmação de conta sempre
+    | que um novo usuário é criado (observer User::created).
+    |
+    */
+
+    'send_welcome_to_new_users' => (bool) env('MAIL_SEND_WELCOME', true),
+
 ];
