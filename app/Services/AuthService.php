@@ -13,10 +13,12 @@ class AuthService
     public function login(array $data): array
     {
         if (! $token = auth('api')->attempt($data)) {
-            $message = 'Credenciais inválidas';
-            if (config('app.debug')) {
-                $message .= ' (confira e-mail/senha; em banco novo use: php artisan db:seed --class=AdminUserSeeder).';
-            }
+            $message = 'E-mail ou senha incorretos.';
+           /**
+            * if (config('app.debug')) {
+            *        $message .= ' (confira e-mail e senha).';
+            *   }
+            */
 
             throw new Exception($message, 401);
         }

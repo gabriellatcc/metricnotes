@@ -23,13 +23,13 @@ class AuthController extends Controller
         try {
             $data = $this->authService->login($request->validated());
 
-            return $this->respondSuccess($data, 'Usuário logado com sucesso!');
+            return $this->respondSuccess($data, 'Bem vindo!');
         } catch (Exception $e) {
             $code = ($e->getCode() >= 100 && $e->getCode() <= 599)
                 ? (int) $e->getCode()
                 : 500;
 
-            return $this->respondError('Erro ao logar usuário: '.$e->getMessage(), null, $code);
+            return $this->respondError(''.$e->getMessage(), null, $code);
         }
     }
 
